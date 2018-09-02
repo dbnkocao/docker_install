@@ -1,0 +1,9 @@
+[Unit]
+Description=Docker Service 
+           
+[Service]
+ExecStart=/usr/bin/dockerd
+ExecStop=killall dockerd
+           
+[Install]
+WantedBy=default.target
