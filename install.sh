@@ -46,6 +46,7 @@ echo "Latest version is $latest";
 
 # Download version
 echo "Downloading last version"
+
 wget $target_url$latest -O /opt/$latest;
 tar xzvf /opt/$latest -C /opt
 
