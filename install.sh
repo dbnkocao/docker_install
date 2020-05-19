@@ -1,5 +1,5 @@
 #!/bin/bash
-regex='href="[^>]*>(docker[^<]*)';
+regex='href="[^>]*>(docker\-[0-9]{1}[^<]*)';
 target_url='https://download.docker.com/linux/static/stable/x86_64/';
 result=$(curl $target_url);
 files='';
