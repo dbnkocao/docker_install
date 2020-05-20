@@ -8,11 +8,14 @@ if [ "$(id -u)" != "0" ]; then
     echo "You must be root! Try 'sudo ./<bash_file>'!";
     exit 1;
 fi
+echo "Creating docker group.";
+groupadd docker;
 
 echo "Uninstalling older versions"
 apt remove docker docker-engine docker.io;
 rm /usr/bin/docker*;
 rm /etc/systemd/system/docker.service;
+rm /usr/local/bin/docker-compose;
 
 echo "Installing dependences"
 apt install -y \
@@ -53,7 +56,12 @@ tar xzvf /opt/$latest -C /opt
 for docker_bin in $(ls /opt/docker)
 do
   cp -f /opt/docker/$docker_bin /usr/bin/$docker_bin;
+  chown :docker /usr/bin/$docker_bin;
 done
+
+echo "Adding docker group to user"
+usermod -aG docker $USER;
+gpasswd -a $USER docker;
 
 echo "Creating systemd file"
 cp ./docker.service /etc/systemd/system/docker.service;
@@ -61,6 +69,14 @@ chmod 664 /etc/systemd/system/docker.service;
 systemctl daemon-reload;
 systemctl enable docker.service;
 systemctl start docker.service;
+chown :docker /var/run/docker.sock;
+setfacl --modify user:$USER:rw /var/run/docker.sock;
 
-echo "Deleting installation files"
+
+echo "Adding docker-compose"
+curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chown :docker /usr/local/bin/docker-compose;
+chmod g+x /usr/local/bin/docker-compose;
+
+echo "Deleting installation files";
 rm -Rf /opt/docker;
